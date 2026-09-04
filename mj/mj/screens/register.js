@@ -1,13 +1,14 @@
+import { Eye, EyeOff } from 'lucide-react-native';
 import { useRef, useState } from "react";
 import {
-    Alert,
-    Animated,
-    ImageBackground,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  Animated,
+  ImageBackground,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 export default function RegisterScreen({ onNavigateToLogin, onNavigateToDriverRegister }) {
@@ -107,12 +108,20 @@ export default function RegisterScreen({ onNavigateToLogin, onNavigateToDriverRe
               secureTextEntry={!showPassword}
             />
 
-            <TouchableOpacity
-              style={styles.eyeButton}
+            <Pressable
+              style={({ pressed }) => [
+                styles.eyeButton,
+                { opacity: pressed ? 0.5 : 1.0 },
+              ]}
               onPress={() => setShowPassword(!showPassword)}
+              hitSlop={10}
             >
-              <Text style={styles.eyeText}>{showPassword ? "🕵🏼‍♀️" : "👁️‍🗨️"}</Text>
-            </TouchableOpacity>
+              {showPassword ? (
+                <Eye color="white" size={20} />
+              ) : (
+                <EyeOff color="white" size={20} />
+              )}
+            </Pressable>
           </View>
 
           {/* Confirm Password */}
@@ -124,18 +133,24 @@ export default function RegisterScreen({ onNavigateToLogin, onNavigateToDriverRe
               placeholder="Confirm Password"
               placeholderTextColor="#ccc"
               onChangeText={setConfirmPassword}
-              value={confirmPassword}
+              value={confirmpassword}
               secureTextEntry={!showConfirmPassword}
             />
 
-            <TouchableOpacity
-              style={styles.eyeButton}
+            <Pressable
+              style={({ pressed }) => [
+                styles.eyeButton,
+                { opacity: pressed ? 0.5 : 1.0 },
+              ]}
               onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+              hitSlop={10}
             >
-              <Text style={styles.eyeText}>
-                {showConfirmPassword ? "🕵🏼‍♀️" : "👁️‍🗨️"}
-              </Text>
-            </TouchableOpacity>
+              {showConfirmPassword ? (
+                <Eye color="white" size={20} />
+              ) : (
+                <EyeOff color="white" size={20} />
+              )}
+            </Pressable>
           </View>
 
           {/* Submit Button */}

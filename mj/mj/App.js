@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { SafeAreaView, StatusBar, StyleSheet } from 'react-native';
-import LoginScreen from './screens/login';
-import RegisterScreen from './screens/register';
+import { useState } from 'react';
+import { StatusBar, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import DriverLoginScreen from './screens/driverLogin';
 import DriverRegisterScreen from './screens/driverRegister';
+import LoginScreen from './screens/login';
+import RegisterScreen from './screens/register';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState('login');

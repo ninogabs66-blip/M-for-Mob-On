@@ -1,15 +1,16 @@
 import { useRef, useState } from "react";
 import {
-    Alert,
-    Animated,
-    ImageBackground,
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  Animated,
+  ImageBackground,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
+
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function DriverLoginScreen({
   onNavigateToDriverRegister,
@@ -77,7 +78,9 @@ export default function DriverLoginScreen({
             value={emailOrPhone}
           />
 
+          {/* Password */}
           <Text style={styles.label}>Password</Text>
+
           <View style={styles.passwordContainer}>
             <TextInput
               style={styles.passwordInput}
@@ -88,12 +91,20 @@ export default function DriverLoginScreen({
               secureTextEntry={!showPassword}
             />
 
-            <TouchableOpacity
-              style={styles.eyeButton}
+            <Pressable
+              style={({ pressed }) => [
+                styles.eyeButton,
+                { opacity: pressed ? 0.5 : 1.0 },
+              ]}
               onPress={() => setShowPassword(!showPassword)}
+              hitSlop={10}
             >
-              <Text style={styles.eyeText}>{showPassword ? "🕵🏼‍♀️" : "👁️‍🗨️"}</Text>
-            </TouchableOpacity>
+              {showPassword ? (
+                <Eye color="white" size={20} />
+              ) : (
+                <EyeOff color="white" size={20} />
+              )}
+            </Pressable>
           </View>
 
           <Animated.View style={{ transform: [{ scale }] }}>

@@ -1,13 +1,13 @@
 import { useRef, useState } from "react";
 import {
-    Alert,
-    Animated,
-    ImageBackground,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  Animated,
+  ImageBackground,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 export default function LoginScreen({
@@ -22,7 +22,7 @@ export default function LoginScreen({
   const [showPassword, setShowPassword] = useState(false);
 
   const handlesave = () => {
-    console.log({ email, password });
+    console.log({ email, password }); 
 
     Alert.alert("Log in Successfully!", "okay na ya.");
   };
@@ -66,7 +66,9 @@ export default function LoginScreen({
 
           <Text style={styles.label}>Password</Text>
 
-          {/* Password input with eye button */}
+          {/* Password */}
+          <Text style={styles.label}>Password</Text>
+
           <View style={styles.passwordContainer}>
             <TextInput
               style={styles.passwordInput}
@@ -77,12 +79,20 @@ export default function LoginScreen({
               secureTextEntry={!showPassword}
             />
 
-            <TouchableOpacity
-              style={styles.eyeButton}
+            <Pressable
+              style={({ pressed }) => [
+                styles.eyeButton,
+                { opacity: pressed ? 0.5 : 1.0 },
+              ]}
               onPress={() => setShowPassword(!showPassword)}
+              hitSlop={10}
             >
-              <Text style={styles.eyeText}>{showPassword ? "🕵🏼‍♀️" : "👁️‍🗨️"}</Text>
-            </TouchableOpacity>
+              {showPassword ? (
+                <Eye color="white" size={20} />
+              ) : (
+                <EyeOff color="white" size={20} />
+              )}
+            </Pressable>
           </View>
 
           <Animated.View

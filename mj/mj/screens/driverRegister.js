@@ -1,16 +1,16 @@
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
-    Alert,
-    Animated,
-    ImageBackground,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  Animated,
+  ImageBackground,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function DriverRegisterScreen({
   onNavigateToLogin,
@@ -267,25 +267,33 @@ export default function DriverRegisterScreen({
             </View>
 
             {/* Confirm Password */}
-            <Text style={styles.label}>Confirm Password</Text>
-            <View style={styles.passwordContainer}>
-              <TextInput
-                style={styles.passwordInput}
-                placeholder="Confirm Password"
-                placeholderTextColor="#ccc"
-                onChangeText={setConfirmPassword}
-                value={confirmPassword}
-                secureTextEntry={!showConfirmPassword}
-              />
-              <TouchableOpacity
-                style={styles.eyeButton}
-                onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-              >
-                <Text style={styles.eyeText}>
-                  {showConfirmPassword ? "🕵🏼‍♀️" : "👁️‍🗨️"}
-                </Text>
-              </TouchableOpacity>
-            </View>
+          <Text style={styles.label}>Confirm Password</Text>
+
+          <View style={styles.passwordContainer}>
+            <TextInput
+              style={styles.passwordInput}
+              placeholder="Confirm Password"
+              placeholderTextColor="#ccc"
+              onChangeText={setConfirmPassword}
+              value={confirmpassword}
+              secureTextEntry={!showConfirmPassword}
+            />
+
+            <Pressable
+              style={({ pressed }) => [
+                styles.eyeButton,
+                { opacity: pressed ? 0.5 : 1.0 },
+              ]}
+              onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+              hitSlop={10}
+            >
+              {showConfirmPassword ? (
+                <Eye color="white" size={20} />
+              ) : (
+                <EyeOff color="white" size={20} />
+              )}
+            </Pressable>
+          </View>
 
             {/* Submit Button */}
             <Animated.View style={{ transform: [{ scale }] }}>
