@@ -1,8 +1,10 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import {
   Alert,
-  Animated,
   ImageBackground,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -10,255 +12,136 @@ import {
   View,
 } from "react-native";
 
-import { SafeAreaView } from 'react-native-safe-area-context';
-
 export default function DriverLoginScreen({
   onNavigateToDriverRegister,
   onNavigateToPassengerLogin,
 }) {
-  const scale = useRef(new Animated.Value(1)).current;
-
   const [emailOrPhone, setEmailOrPhone] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleSave = () => {
-    if (!emailOrPhone.trim() || !password) {
-      Alert.alert(
-        "Missing Field",
-        "Please enter your Driver Email or Phone and Password.",
-      );
+  const handleSubmit = () => {
+    if (!emailOrPhone.trim()) {
+      Alert.alert("Missing Login", "Please enter your driver email or phone number.");
+      return;
+    }
+    if (!password) {
+      Alert.alert("Missing Password", "Please enter your password.");
       return;
     }
 
-    console.log({ role: "driver", emailOrPhone, password });
-
-    Alert.alert(
-      "Driver Log in Successfully!",
-      "Welcome back, Driver! Ready to accept rides.",
-    );
-  };
-
-  const handleSubmit = () => {
-    Animated.sequence([
-      Animated.timing(scale, {
-        toValue: 0.85,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-      Animated.timing(scale, {
-        toValue: 1,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
-      handleSave();
-    });
+    Alert.alert("Driver Login Successful", "Welcome back, Driver!");
   };
 
   return (
     <ImageBackground
       source={require("./angkas ya.jpg")}
       resizeMode="cover"
-      style={styles.image}
+      style={styles.background}
     >
-      <SafeAreaView style={styles.container}>
-        <View style={styles.form}>
-          <Text style={styles.headerTitle}>Driver Portal</Text>
-          <Text style={styles.headerSubtitle}>Log in to start driving</Text>
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.form}>
+            <Text style={styles.title}>Driver Portal</Text>
+            <Text style={styles.subtitle}>Log in to start driving</Text>
 
-          <Text style={styles.label}>Driver Email or Phone</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="driver@example.com / 0917..."
-            placeholderTextColor="#ccc"
-            autoCapitalize="none"
-            keyboardType="email-address"
-            onChangeText={setEmailOrPhone}
-            value={emailOrPhone}
-          />
-
-          {/* Password */}
-          <Text style={styles.label}>Password</Text>
-
-          <View style={styles.passwordContainer}>
+            <Text style={styles.label}>Driver Email or Phone</Text>
             <TextInput
-              style={styles.passwordInput}
-              placeholder="Password"
-              placeholderTextColor="#ccc"
-              onChangeText={setPassword}
-              value={password}
-              secureTextEntry={!showPassword}
+              style={styles.input}
+              placeholder="driver@example.com / 0917..."
+              placeholderTextColor="#cbd5e1"
+              autoCapitalize="none"
+              autoCorrect={false}
+              value={emailOrPhone}
+              onChangeText={setEmailOrPhone}
             />
 
-            <Pressable
-              style={({ pressed }) => [
-                styles.eyeButton,
-                { opacity: pressed ? 0.5 : 1.0 },
-              ]}
-              onPress={() => setShowPassword(!showPassword)}
-              hitSlop={10}
-            >
-              {showPassword ? (
-                <Eye color="white" size={20} />
-              ) : (
-                <EyeOff color="white" size={20} />
-              )}
-            </Pressable>
+            <Text style={styles.label}>Password</Text>
+            <View style={styles.passwordContainer}>
+              <TextInput
+                style={styles.passwordInput}
+                placeholder="Password"
+                placeholderTextColor="#cbd5e1"
+                secureTextEntry={!showPassword}
+                autoCapitalize="none"
+                value={password}
+                onChangeText={setPassword}
+              />
+              <TouchableOpacity style={styles.eyeButton} onPress={() => setShowPassword((v) => !v)}>
+                <Text style={styles.eyeText}>{showPassword ? "Hide" : "Show"}</Text>
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity style={styles.primaryButton} onPress={handleSubmit} activeOpacity={0.8}>
+              <Text style={styles.buttonText}>Driver Log In</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.linkButton} onPress={onNavigateToDriverRegister}>
+              <Text style={styles.linkText}>New driver? Register as Driver</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.linkButton} onPress={onNavigateToPassengerLogin}>
+              <Text style={styles.secondaryText}>Switch to Passenger Login</Text>
+            </TouchableOpacity>
           </View>
-
-          <Animated.View style={{ transform: [{ scale }] }}>
-            <TouchableOpacity
-              style={styles.submitBtn}
-              onPress={handleSubmit}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.fontColor}>Driver Log In</Text>
-            </TouchableOpacity>
-          </Animated.View>
-
-          {onNavigateToDriverRegister && (
-            <TouchableOpacity
-              style={styles.switchBtn}
-              onPress={onNavigateToDriverRegister}
-            >
-              <Text style={styles.switchText}>
-                New driver?{" "}
-                <Text style={styles.linkText}>Register as Driver</Text>
-              </Text>
-            </TouchableOpacity>
-          )}
-
-          {onNavigateToPassengerLogin && (
-            <TouchableOpacity
-              style={styles.secondarySwitchBtn}
-              onPress={onNavigateToPassengerLogin}
-            >
-              <Text style={styles.secondarySwitchText}>
-                Switch to Passenger Login
-              </Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      </SafeAreaView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  image: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
+  flex: { flex: 1 },
+  background: { flex: 1, width: "100%", height: "100%" },
+  scrollContent: { flexGrow: 1, justifyContent: "center", alignItems: "center", padding: 24 },
   form: {
-    backgroundColor: "rgba(30, 41, 59, 0.92)",
+    width: "100%",
+    maxWidth: 360,
     padding: 22,
-    borderRadius: 12,
-    gap: 10,
-    width: 320,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.2)",
+    borderRadius: 16,
+    backgroundColor: "rgba(15, 23, 42, 0.94)",
   },
-
-  headerTitle: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#ffffff",
-    textAlign: "center",
-  },
-
-  headerSubtitle: {
-    fontSize: 13,
-    color: "#38bdf8",
-    textAlign: "center",
-    marginBottom: 6,
-  },
-
-  label: {
-    color: "white",
-    fontWeight: "bold",
-    fontSize: 13,
-  },
-
+  title: { color: "#fff", fontSize: 24, fontWeight: "700", textAlign: "center" },
+  subtitle: { color: "#38bdf8", textAlign: "center", marginTop: 4, marginBottom: 18 },
+  label: { color: "#fff", fontWeight: "600", marginTop: 10, marginBottom: 6 },
   input: {
+    minHeight: 48,
     borderWidth: 1,
-    borderColor: "white",
-    padding: 10,
-    borderRadius: 6,
-    color: "white",
-    backgroundColor: "rgba(0, 0, 0, 0.25)",
+    borderColor: "#94a3b8",
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    color: "#fff",
+    backgroundColor: "rgba(0,0,0,0.25)",
   },
-
   passwordContainer: {
     flexDirection: "row",
     alignItems: "center",
+    minHeight: 48,
     borderWidth: 1,
-    borderColor: "white",
-    borderRadius: 6,
-    backgroundColor: "rgba(0, 0, 0, 0.25)",
+    borderColor: "#94a3b8",
+    borderRadius: 8,
+    backgroundColor: "rgba(0,0,0,0.25)",
   },
-
-  passwordInput: {
-    flex: 1,
-    padding: 10,
-    color: "white",
-  },
-
-  eyeButton: {
-    padding: 10,
-  },
-
-  eyeText: {
-    fontSize: 20,
-  },
-
-  fontColor: {
-    color: "white",
-    textAlign: "center",
-    fontWeight: "bold",
-    fontSize: 15,
-  },
-
-  submitBtn: {
+  passwordInput: { flex: 1, minHeight: 46, paddingHorizontal: 12, color: "#fff" },
+  eyeButton: { paddingHorizontal: 12, paddingVertical: 12 },
+  eyeText: { color: "#38bdf8", fontWeight: "700" },
+  primaryButton: {
+    marginTop: 20,
+    minHeight: 48,
+    borderRadius: 8,
     backgroundColor: "#0284c7",
-    padding: 12,
-    borderRadius: 6,
-    marginTop: 8,
-  },
-
-  switchBtn: {
-    marginTop: 10,
+    justifyContent: "center",
     alignItems: "center",
   },
-
-  switchText: {
-    color: "white",
-    fontSize: 13,
-    textAlign: "center",
-  },
-
-  linkText: {
-    color: "#38bdf8",
-    fontWeight: "bold",
-    textDecorationLine: "underline",
-  },
-
-  secondarySwitchBtn: {
-    marginTop: 8,
-    alignItems: "center",
-  },
-
-  secondarySwitchText: {
-    color: "#94a3b8",
-    fontSize: 12,
-    textDecorationLine: "underline",
-  },
+  buttonText: { color: "#fff", fontWeight: "700", fontSize: 15 },
+  linkButton: { marginTop: 14, alignItems: "center" },
+  linkText: { color: "#38bdf8", textAlign: "center", textDecorationLine: "underline", fontSize: 13 },
+  secondaryText: { color: "#94a3b8", textAlign: "center", textDecorationLine: "underline", fontSize: 13 },
 });
