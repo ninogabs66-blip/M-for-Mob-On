@@ -1,8 +1,9 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import {
   Alert,
-  Animated,
   ImageBackground,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -10,499 +11,210 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function DriverRegisterScreen({
   onNavigateToLogin,
   onNavigateToPassengerRegister,
 }) {
-  const scale = useRef(new Animated.Value(1)).current;
-
-  // Input states
-  const [name, setName] = useState("");
-  const [midName, setMidName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [middleName, setMiddleName] = useState("");
   const [lastName, setLastName] = useState("");
   const [contactInfo, setContactInfo] = useState("");
   const [birthdate, setBirthdate] = useState("");
-  const [license, setLicense] = useState(null);
+  const [licenseAttached, setLicenseAttached] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
-  // Password visibility
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Auto-format birthdate to MM/DD/YYYY
   const handleBirthdateChange = (text) => {
-    const cleaned = text.replace(/[^0-9]/g, "");
-    let formatted = cleaned;
-    if (cleaned.length > 2 && cleaned.length <= 4) {
-      formatted = `${cleaned.slice(0, 2)}/${cleaned.slice(2)}`;
-    } else if (cleaned.length > 4) {
-      formatted = `${cleaned.slice(0, 2)}/${cleaned.slice(2, 4)}/${cleaned.slice(4, 8)}`;
+    const digits = text.replace(/\D/g, "").slice(0, 8);
+    let formatted = digits;
+    if (digits.length > 4) {
+      formatted = `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+    } else if (digits.length > 2) {
+      formatted = `${digits.slice(0, 2)}/${digits.slice(2)}`;
     }
     setBirthdate(formatted);
   };
 
-  // Attach license
-  const handlePickLicense = () => {
-    Alert.alert(
-      "License Attached",
-      "Driver's License copy (drivers_license_front.jpg) attached successfully.",
-    );
-    setLicense({ name: "drivers_license_front.jpg" });
-  };
-
-  // Save / Validate
-  const handlesave = () => {
-    if (!name.trim() || !lastName.trim()) {
-      Alert.alert(
-        "Missing Field",
-        "Please enter your First Name and Last Name.",
-      );
-      return;
-    }
-
-    if (!contactInfo.trim()) {
-      Alert.alert("Missing Field", "Please enter your contact information.");
-      return;
-    }
-
-    if (!birthdate.trim() || birthdate.length < 10) {
-      Alert.alert(
-        "Invalid Birthdate",
-        "Please enter your birthdate in MM/DD/YYYY format.",
-      );
-      return;
-    }
-
-    if (!license) {
-      Alert.alert(
-        "Missing License",
-        "Please attach a copy of your driver's license.",
-      );
-      return;
-    }
-
-    if (!email.trim()) {
-      Alert.alert("Missing Field", "Please enter your email address.");
-      return;
-    }
-
-    if (!password) {
-      Alert.alert("Missing Field", "Please enter a password.");
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      Alert.alert("Error", "Passwords do not match!");
-      return;
-    }
-
-    console.log({
-      role: "driver",
-      name,
-      midName,
-      lastName,
-      contactInfo,
-      birthdate,
-      license: license.name,
-      email,
-      password,
-    });
-
-    Alert.alert(
-      "Driver Account Created!",
-      `Welcome Driver ${name} ${lastName}! Your registration application has been submitted successfully.`,
-    );
-  };
-
-  // Submit button animation
   const handleSubmit = () => {
-    Animated.sequence([
-      Animated.timing(scale, {
-        toValue: 0.85,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-      Animated.timing(scale, {
-        toValue: 1,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
-      handlesave();
-    });
+    if (!firstName.trim() || !lastName.trim()) {
+      Alert.alert("Missing Name", "Please enter your first and last name.");
+      return;
+    }
+    if (!contactInfo.trim()) {
+      Alert.alert("Missing Contact", "Please enter your contact information.");
+      return;
+    }
+    if (birthdate.length !== 10) {
+      Alert.alert("Invalid Birthdate", "Use MM/DD/YYYY format.");
+      return;
+    }
+    if (!licenseAttached) {
+      Alert.alert("Missing License", "Please attach your driver's license.");
+      return;
+    }
+    if (!email.trim()) {
+      Alert.alert("Missing Email", "Please enter your email address.");
+      return;
+    }
+    if (!password) {
+      Alert.alert("Missing Password", "Please enter a password.");
+      return;
+    }
+    if (password !== confirmPassword) {
+      Alert.alert("Password Error", "Passwords do not match.");
+      return;
+    }
+
+    Alert.alert(
+      "Driver Registration Submitted",
+      `Welcome ${firstName} ${lastName}! Your application has been submitted successfully.`,
+    );
   };
 
   return (
     <ImageBackground
       source={require("./angkas ya.jpg")}
       resizeMode="cover"
-      style={styles.image}
+      style={styles.background}
     >
-      <SafeAreaView style={styles.safeArea}>
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
         <ScrollView
-          contentContainerStyle={styles.scrollContainer}
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.form}>
-            <Text style={styles.headerTitle}>Driver Registration</Text>
-            <Text style={styles.headerSubtitle}>
-              Create an account as Driver
-            </Text>
+            <Text style={styles.title}>Driver Registration</Text>
+            <Text style={styles.subtitle}>Create your driver account</Text>
 
-            {/* First Name */}
             <Text style={styles.label}>First Name</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Juan"
-              placeholderTextColor="#ccc"
-              onChangeText={setName}
-              value={name}
-            />
+            <TextInput style={styles.input} placeholder="Juan" placeholderTextColor="#cbd5e1" value={firstName} onChangeText={setFirstName} />
 
-            {/* Middle Name */}
             <Text style={styles.label}>Middle Name</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Santos"
-              placeholderTextColor="#ccc"
-              onChangeText={setMidName}
-              value={midName}
-            />
+            <TextInput style={styles.input} placeholder="Santos" placeholderTextColor="#cbd5e1" value={middleName} onChangeText={setMiddleName} />
 
-            {/* Last Name */}
             <Text style={styles.label}>Last Name</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Dela Cruz"
-              placeholderTextColor="#ccc"
-              onChangeText={setLastName}
-              value={lastName}
-            />
+            <TextInput style={styles.input} placeholder="Dela Cruz" placeholderTextColor="#cbd5e1" value={lastName} onChangeText={setLastName} />
 
-            {/* Contact Info */}
             <Text style={styles.label}>Contact Info</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="0917 123 4567"
-              placeholderTextColor="#ccc"
-              keyboardType="phone-pad"
-              onChangeText={setContactInfo}
-              value={contactInfo}
-            />
+            <TextInput style={styles.input} placeholder="0917 123 4567" placeholderTextColor="#cbd5e1" keyboardType="phone-pad" value={contactInfo} onChangeText={setContactInfo} />
 
-            {/* Birthdate */}
             <Text style={styles.label}>Birthdate (MM/DD/YYYY)</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="MM/DD/YYYY"
-              placeholderTextColor="#ccc"
-              keyboardType="numeric"
-              maxLength={10}
-              onChangeText={handleBirthdateChange}
-              value={birthdate}
-            />
+            <TextInput style={styles.input} placeholder="MM/DD/YYYY" placeholderTextColor="#cbd5e1" keyboardType="numeric" maxLength={10} value={birthdate} onChangeText={handleBirthdateChange} />
 
-            {/* Copy of License */}
             <Text style={styles.label}>Copy of License</Text>
             <TouchableOpacity
-              style={[
-                styles.licenseBox,
-                license ? styles.licenseBoxActive : null,
-              ]}
-              onPress={handlePickLicense}
-              activeOpacity={0.7}
+              style={[styles.licenseButton, licenseAttached && styles.licenseButtonActive]}
+              onPress={() => setLicenseAttached((value) => !value)}
+              activeOpacity={0.8}
             >
-              <Text style={styles.licenseIcon}>{license ? "✅" : "🪪"}</Text>
-              <View style={styles.licenseTextWrapper}>
-                <Text style={styles.licenseTitle}>
-                  {license ? "License Attached" : "Attach Driver’s License"}
-                </Text>
-                <Text style={styles.licenseSubtitle}>
-                  {license ? license.name : "Tap to upload front copy photo"}
-                </Text>
-              </View>
-              {license && (
-                <TouchableOpacity
-                  onPress={() => setLicense(null)}
-                  style={styles.licenseRemoveBtn}
-                >
-                  <Text style={styles.licenseRemoveText}>✕</Text>
-                </TouchableOpacity>
-              )}
+              <Text style={styles.licenseText}>
+                {licenseAttached ? "✓ License Attached" : "Attach Driver's License"}
+              </Text>
             </TouchableOpacity>
 
-            {/* Email */}
             <Text style={styles.label}>Email</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="driver@example.com"
-              placeholderTextColor="#ccc"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              onChangeText={setEmail}
-              value={email}
-            />
+            <TextInput style={styles.input} placeholder="driver@example.com" placeholderTextColor="#cbd5e1" keyboardType="email-address" autoCapitalize="none" autoCorrect={false} value={email} onChangeText={setEmail} />
 
-            {/* Password */}
             <Text style={styles.label}>Password</Text>
             <View style={styles.passwordContainer}>
-              <TextInput
-                style={styles.passwordInput}
-                placeholder="Password"
-                placeholderTextColor="#ccc"
-                onChangeText={setPassword}
-                value={password}
-                secureTextEntry={!showPassword}
-              />
-              <TouchableOpacity
-                style={styles.eyeButton}
-                onPress={() => setShowPassword(!showPassword)}
-              >
-                <Text style={styles.eyeText}>{showPassword ? "🕵🏼‍♀️" : "👁️‍🗨️"}</Text>
+              <TextInput style={styles.passwordInput} placeholder="Password" placeholderTextColor="#cbd5e1" secureTextEntry={!showPassword} value={password} onChangeText={setPassword} />
+              <TouchableOpacity style={styles.eyeButton} onPress={() => setShowPassword((v) => !v)}>
+                <Text style={styles.eyeText}>{showPassword ? "Hide" : "Show"}</Text>
               </TouchableOpacity>
             </View>
 
-            {/* Confirm Password */}
-          <Text style={styles.label}>Confirm Password</Text>
-
-          <View style={styles.passwordContainer}>
-            <TextInput
-              style={styles.passwordInput}
-              placeholder="Confirm Password"
-              placeholderTextColor="#ccc"
-              onChangeText={setConfirmPassword}
-              value={confirmpassword}
-              secureTextEntry={!showConfirmPassword}
-            />
-
-            <Pressable
-              style={({ pressed }) => [
-                styles.eyeButton,
-                { opacity: pressed ? 0.5 : 1.0 },
-              ]}
-              onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-              hitSlop={10}
-            >
-              {showConfirmPassword ? (
-                <Eye color="white" size={20} />
-              ) : (
-                <EyeOff color="white" size={20} />
-              )}
-            </Pressable>
-          </View>
-
-            {/* Submit Button */}
-            <Animated.View style={{ transform: [{ scale }] }}>
-              <TouchableOpacity
-                style={styles.submitBtn}
-                onPress={handleSubmit}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.fontColor}>Submit Application</Text>
+            <Text style={styles.label}>Confirm Password</Text>
+            <View style={styles.passwordContainer}>
+              <TextInput style={styles.passwordInput} placeholder="Confirm Password" placeholderTextColor="#cbd5e1" secureTextEntry={!showConfirmPassword} value={confirmPassword} onChangeText={setConfirmPassword} />
+              <TouchableOpacity style={styles.eyeButton} onPress={() => setShowConfirmPassword((v) => !v)}>
+                <Text style={styles.eyeText}>{showConfirmPassword ? "Hide" : "Show"}</Text>
               </TouchableOpacity>
-            </Animated.View>
+            </View>
 
-            {/* Navigation Switchers */}
-            {onNavigateToLogin && (
-              <TouchableOpacity
-                style={styles.switchBtn}
-                onPress={onNavigateToLogin}
-              >
-                <Text style={styles.switchText}>
-                  Already have a driver account?{' '}
-                  <Text style={styles.linkText}>Driver Log In</Text>
-                </Text>
-              </TouchableOpacity>
-            )}
+            <TouchableOpacity style={styles.primaryButton} onPress={handleSubmit} activeOpacity={0.8}>
+              <Text style={styles.buttonText}>Submit Application</Text>
+            </TouchableOpacity>
 
-            {onNavigateToPassengerRegister && (
-              <TouchableOpacity
-                style={styles.secondarySwitchBtn}
-                onPress={onNavigateToPassengerRegister}
-              >
-                <Text style={styles.secondarySwitchText}>
-                  Register as Passenger instead
-                </Text>
-              </TouchableOpacity>
-            )}
+            <TouchableOpacity style={styles.linkButton} onPress={onNavigateToLogin}>
+              <Text style={styles.linkText}>Already a driver? Driver Log In</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.linkButton} onPress={onNavigateToPassengerRegister}>
+              <Text style={styles.secondaryText}>Register as Passenger instead</Text>
+            </TouchableOpacity>
           </View>
         </ScrollView>
-      </SafeAreaView>
+      </KeyboardAvoidingView>
     </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  image: {
-    flex: 1,
-    width: "100%",
-    height: "100%",
-  },
-
-  safeArea: {
-    flex: 1,
-  },
-
-  scrollContainer: {
-    paddingVertical: 30,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
+  flex: { flex: 1 },
+  background: { flex: 1, width: "100%", height: "100%" },
+  scrollContent: { flexGrow: 1, alignItems: "center", padding: 24 },
   form: {
-    backgroundColor: "rgba(30, 41, 59, 0.92)",
+    width: "100%",
+    maxWidth: 360,
     padding: 22,
-    borderRadius: 12,
-    gap: 10,
-    width: 320,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.2)",
+    marginVertical: 20,
+    borderRadius: 16,
+    backgroundColor: "rgba(15, 23, 42, 0.94)",
   },
-
-  headerTitle: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#ffffff",
-    textAlign: "center",
-  },
-
-  headerSubtitle: {
-    fontSize: 13,
-    color: "#38bdf8",
-    textAlign: "center",
-    marginBottom: 6,
-  },
-
-  label: {
-    color: "white",
-    fontWeight: "bold",
-    fontSize: 13,
-  },
-
+  title: { color: "#fff", fontSize: 23, fontWeight: "700", textAlign: "center" },
+  subtitle: { color: "#38bdf8", textAlign: "center", marginTop: 4, marginBottom: 14 },
+  label: { color: "#fff", fontWeight: "600", marginTop: 10, marginBottom: 6 },
   input: {
+    minHeight: 48,
     borderWidth: 1,
-    borderColor: "white",
-    padding: 10,
-    borderRadius: 6,
-    color: "white",
-    backgroundColor: "rgba(0, 0, 0, 0.25)",
+    borderColor: "#94a3b8",
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    color: "#fff",
+    backgroundColor: "rgba(0,0,0,0.25)",
   },
-
-  licenseBox: {
-    flexDirection: "row",
-    alignItems: "center",
+  licenseButton: {
+    minHeight: 48,
+    borderRadius: 8,
     borderWidth: 1,
     borderStyle: "dashed",
     borderColor: "#38bdf8",
-    borderRadius: 6,
-    padding: 10,
-    backgroundColor: "rgba(56, 189, 248, 0.1)",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 12,
   },
-
-  licenseBoxActive: {
-    borderColor: "#4ade80",
-    backgroundColor: "rgba(74, 222, 128, 0.15)",
-    borderStyle: "solid",
-  },
-
-  licenseIcon: {
-    fontSize: 24,
-    marginRight: 10,
-  },
-
-  licenseTextWrapper: {
-    flex: 1,
-  },
-
-  licenseTitle: {
-    color: "white",
-    fontWeight: "bold",
-    fontSize: 13,
-  },
-
-  licenseSubtitle: {
-    color: "#cbd5e1",
-    fontSize: 11,
-  },
-
-  licenseRemoveBtn: {
-    padding: 6,
-  },
-
-  licenseRemoveText: {
-    color: "#f87171",
-    fontWeight: "bold",
-    fontSize: 16,
-  },
-
+  licenseButtonActive: { borderStyle: "solid", borderColor: "#4ade80" },
+  licenseText: { color: "#fff", fontWeight: "600", textAlign: "center" },
   passwordContainer: {
     flexDirection: "row",
     alignItems: "center",
+    minHeight: 48,
     borderWidth: 1,
-    borderColor: "white",
-    borderRadius: 6,
-    backgroundColor: "rgba(0, 0, 0, 0.25)",
+    borderColor: "#94a3b8",
+    borderRadius: 8,
+    backgroundColor: "rgba(0,0,0,0.25)",
   },
-
-  passwordInput: {
-    flex: 1,
-    padding: 10,
-    color: "white",
-  },
-
-  eyeButton: {
-    paddingHorizontal: 10,
+  passwordInput: { flex: 1, minHeight: 46, paddingHorizontal: 12, color: "#fff" },
+  eyeButton: { paddingHorizontal: 12, paddingVertical: 12 },
+  eyeText: { color: "#38bdf8", fontWeight: "700" },
+  primaryButton: {
+    marginTop: 20,
+    minHeight: 48,
+    borderRadius: 8,
+    backgroundColor: "#0284c7",
     justifyContent: "center",
     alignItems: "center",
   },
-
-  eyeText: {
-    fontSize: 20,
-  },
-
-  fontColor: {
-    color: "white",
-    textAlign: "center",
-    fontWeight: "bold",
-    fontSize: 15,
-  },
-
-  submitBtn: {
-    backgroundColor: "#0284c7",
-    padding: 12,
-    borderRadius: 6,
-    marginTop: 8,
-  },
-
-  switchBtn: {
-    marginTop: 8,
-    alignItems: "center",
-  },
-
-  switchText: {
-    color: "white",
-    fontSize: 13,
-    textAlign: "center",
-  },
-
-  linkText: {
-    color: "#38bdf8",
-    fontWeight: "bold",
-    textDecorationLine: "underline",
-  },
-
-  secondarySwitchBtn: {
-    marginTop: 4,
-    alignItems: "center",
-  },
-
-  secondarySwitchText: {
-    color: "#94a3b8",
-    fontSize: 12,
-    textDecorationLine: "underline",
-  },
+  buttonText: { color: "#fff", fontWeight: "700", fontSize: 15 },
+  linkButton: { marginTop: 14, alignItems: "center" },
+  linkText: { color: "#38bdf8", textAlign: "center", textDecorationLine: "underline", fontSize: 13 },
+  secondaryText: { color: "#94a3b8", textAlign: "center", textDecorationLine: "underline", fontSize: 13 },
 });
