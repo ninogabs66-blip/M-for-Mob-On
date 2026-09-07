@@ -1,8 +1,10 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import {
   Alert,
-  Animated,
   ImageBackground,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -15,240 +17,97 @@ export default function LoginScreen({
   onNavigateToDriverRegister,
   onNavigateToDriverLogin,
 }) {
-  const scale = useRef(new Animated.Value(1)).current;
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  const handlesave = () => {
-    console.log({ email, password }); 
-
-    Alert.alert("Log in Successfully!", "okay na ya.");
-  };
-
   const handleSubmit = () => {
-    Animated.sequence([
-      Animated.timing(scale, {
-        toValue: 0.85,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-      Animated.timing(scale, {
-        toValue: 1,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
-      handlesave();
-    });
+    if (!email.trim()) {
+      Alert.alert("Missing Email", "Please enter your email address.");
+      return;
+    }
+    if (!password) {
+      Alert.alert("Missing Password", "Please enter your password.");
+      return;
+    }
+    Alert.alert("Log in Successfully!", "Welcome back!");
   };
 
   return (
-    <ImageBackground
-      source={require("./angkas ya.jpg")}
-      resizeMode="cover"
-      style={styles.image}
-    >
-      <View style={styles.container}>
-        <View style={styles.form}>
-          <Text style={styles.label}>Email</Text>
+    <ImageBackground source={require("./angkas ya.jpg")} resizeMode="cover" style={styles.background}>
+      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === "ios" ? "padding" : undefined}>
+        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+          <View style={styles.form}>
+            <Text style={styles.title}>Passenger Login</Text>
+            <Text style={styles.subtitle}>Log in to continue</Text>
 
-          <TextInput
-            style={styles.input}
-            placeholder="Email@example.com"
-            placeholderTextColor="#ccc"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            onChangeText={setEmail}
-            value={email}
-          />
-
-          <Text style={styles.label}>Password</Text>
-
-          {/* Password */}
-          <Text style={styles.label}>Password</Text>
-
-          <View style={styles.passwordContainer}>
+            <Text style={styles.label}>Email</Text>
             <TextInput
-              style={styles.passwordInput}
-              placeholder="Password"
-              placeholderTextColor="#ccc"
-              onChangeText={setPassword}
-              value={password}
-              secureTextEntry={!showPassword}
+              style={styles.input}
+              placeholder="Email@example.com"
+              placeholderTextColor="#cbd5e1"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              value={email}
+              onChangeText={setEmail}
             />
 
-            <Pressable
-              style={({ pressed }) => [
-                styles.eyeButton,
-                { opacity: pressed ? 0.5 : 1.0 },
-              ]}
-              onPress={() => setShowPassword(!showPassword)}
-              hitSlop={10}
-            >
-              {showPassword ? (
-                <Eye color="white" size={20} />
-              ) : (
-                <EyeOff color="white" size={20} />
-              )}
-            </Pressable>
+            <Text style={styles.label}>Password</Text>
+            <View style={styles.passwordContainer}>
+              <TextInput
+                style={styles.passwordInput}
+                placeholder="Password"
+                placeholderTextColor="#cbd5e1"
+                secureTextEntry={!showPassword}
+                autoCapitalize="none"
+                autoCorrect={false}
+                value={password}
+                onChangeText={setPassword}
+              />
+              <TouchableOpacity style={styles.eyeButton} onPress={() => setShowPassword((value) => !value)}>
+                <Text style={styles.eyeText}>{showPassword ? "Hide" : "Show"}</Text>
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity style={styles.primaryButton} onPress={handleSubmit} activeOpacity={0.8}>
+              <Text style={styles.buttonText}>Log In</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.linkButton} onPress={onNavigateToRegister}>
+              <Text style={styles.linkText}>Don't have an account? Register as Passenger</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.driverButton} onPress={onNavigateToDriverLogin}>
+              <Text style={styles.buttonText}>Log in as Driver</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.linkButton} onPress={onNavigateToDriverRegister}>
+              <Text style={styles.linkText}>Want to earn with us? Register as Driver</Text>
+            </TouchableOpacity>
           </View>
-
-          <Animated.View
-            style={{
-              transform: [{ scale }],
-            }}
-          >
-            <TouchableOpacity
-              style={styles.submitBtn}
-              onPress={handleSubmit}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.fontColor}>Submit</Text>
-            </TouchableOpacity>
-          </Animated.View>
-
-          {onNavigateToRegister && (
-            <TouchableOpacity
-              style={styles.switchBtn}
-              onPress={onNavigateToRegister}
-            >
-              <Text style={styles.switchText}>
-                Don't have an account?{' '}
-                <Text style={styles.linkText}>Register as Passenger</Text>
-              </Text>
-            </TouchableOpacity>
-          )}
-
-          {onNavigateToDriverLogin && (
-            <TouchableOpacity
-              style={styles.driverBtn}
-              onPress={onNavigateToDriverLogin}
-            >
-              <Text style={styles.driverBtnText}>
-                🏍️ Log in as Driver
-              </Text>
-            </TouchableOpacity>
-          )}
-
-          {onNavigateToDriverRegister && (
-            <TouchableOpacity
-              style={styles.switchBtn}
-              onPress={onNavigateToDriverRegister}
-            >
-              <Text style={styles.switchText}>
-                Want to earn with us?{' '}
-                <Text style={styles.linkText}>Register as Driver</Text>
-              </Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  image: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  form: {
-    backgroundColor: "rgba(128, 128, 128, 0.9)",
-    padding: 20,
-    borderRadius: 10,
-    gap: 10,
-    width: 300,
-  },
-
-  label: {
-    color: "white",
-    fontWeight: "bold",
-  },
-
-  input: {
-    borderWidth: 1,
-    borderColor: "white",
-    padding: 10,
-    borderRadius: 5,
-    color: "white",
-  },
-
-  // Password box
-  passwordContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "white",
-    borderRadius: 5,
-  },
-
-  // Password text input
-  passwordInput: {
-    flex: 1,
-    padding: 10,
-    color: "white",
-  },
-
-  // Eye button
-  eyeButton: {
-    padding: 10,
-  },
-
-  eyeText: {
-    fontSize: 20,
-  },
-
-  fontColor: {
-    color: "white",
-    textAlign: "center",
-    fontWeight: "bold",
-  },
-
-  submitBtn: {
-    backgroundColor: "blue",
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 10,
-  },
-
-  switchBtn: {
-    marginTop: 10,
-    alignItems: "center",
-  },
-
-  switchText: {
-    color: "white",
-    fontSize: 13,
-    textAlign: "center",
-  },
-
-  linkText: {
-    color: "#38bdf8",
-    fontWeight: "bold",
-    textDecorationLine: "underline",
-  },
-
-  driverBtn: {
-    marginTop: 10,
-    backgroundColor: "#0284c7",
-    padding: 10,
-    borderRadius: 5,
-    alignItems: "center",
-  },
-
-  driverBtnText: {
-    color: "white",
-    fontWeight: "bold",
-    fontSize: 13,
-  },
+  flex: { flex: 1 },
+  background: { flex: 1, width: "100%", height: "100%" },
+  scrollContent: { flexGrow: 1, justifyContent: "center", alignItems: "center", padding: 24 },
+  form: { width: "100%", maxWidth: 360, padding: 22, borderRadius: 16, backgroundColor: "rgba(15, 23, 42, 0.94)" },
+  title: { color: "#ffffff", fontSize: 24, fontWeight: "700", textAlign: "center" },
+  subtitle: { color: "#38bdf8", textAlign: "center", marginTop: 4, marginBottom: 18 },
+  label: { color: "#ffffff", fontWeight: "600", marginBottom: 6, marginTop: 10 },
+  input: { minHeight: 48, borderWidth: 1, borderColor: "#94a3b8", borderRadius: 8, paddingHorizontal: 12, color: "#ffffff", backgroundColor: "rgba(0,0,0,0.25)" },
+  passwordContainer: { flexDirection: "row", alignItems: "center", minHeight: 48, borderWidth: 1, borderColor: "#94a3b8", borderRadius: 8, backgroundColor: "rgba(0,0,0,0.25)" },
+  passwordInput: { flex: 1, minHeight: 46, paddingHorizontal: 12, color: "#ffffff" },
+  eyeButton: { paddingHorizontal: 12, paddingVertical: 12 },
+  eyeText: { color: "#38bdf8", fontWeight: "700" },
+  primaryButton: { marginTop: 20, minHeight: 48, borderRadius: 8, backgroundColor: "#0284c7", justifyContent: "center", alignItems: "center" },
+  driverButton: { marginTop: 12, minHeight: 48, borderRadius: 8, backgroundColor: "#0369a1", justifyContent: "center", alignItems: "center" },
+  buttonText: { color: "#ffffff", fontWeight: "700", fontSize: 15 },
+  linkButton: { marginTop: 14, alignItems: "center" },
+  linkText: { color: "#38bdf8", textAlign: "center", textDecorationLine: "underline", fontSize: 13 },
 });

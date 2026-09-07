@@ -1,9 +1,10 @@
-import { Eye, EyeOff } from 'lucide-react-native';
-import { useRef, useState } from "react";
+import { useState } from "react";
 import {
   Alert,
-  Animated,
   ImageBackground,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -12,284 +13,177 @@ import {
 } from "react-native";
 
 export default function RegisterScreen({ onNavigateToLogin, onNavigateToDriverRegister }) {
-  // Animation
-  const scale = useRef(new Animated.Value(1)).current;
-
-  // Input states
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
-  // Password visibility
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Save function
-  const handlesave = () => {
+  const handleSubmit = () => {
+    if (!name.trim()) {
+      Alert.alert("Missing Name", "Please enter your full name.");
+      return;
+    }
+    if (!email.trim()) {
+      Alert.alert("Missing Email", "Please enter your email address.");
+      return;
+    }
+    if (!password) {
+      Alert.alert("Missing Password", "Please enter a password.");
+      return;
+    }
     if (password !== confirmPassword) {
-      Alert.alert("Error", "Passwords do not match!");
+      Alert.alert("Password Error", "Passwords do not match.");
       return;
     }
 
-    console.log({
-      name,
-      email,
-      password,
-    });
-
-    Alert.alert(
-      "Registered!",
-      "Your information has been registered successfully.",
-    );
-  };
-
-  // Submit animation
-  const handleSubmit = () => {
-    Animated.sequence([
-      Animated.timing(scale, {
-        toValue: 0.85,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-
-      Animated.timing(scale, {
-        toValue: 1,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
-      handlesave();
-    });
+    Alert.alert("Registered!", "Your passenger account has been created successfully.");
   };
 
   return (
     <ImageBackground
       source={require("./angkas ya.jpg")}
       resizeMode="cover"
-      style={styles.image}
+      style={styles.background}
     >
-      <View style={styles.container}>
-        <View style={styles.form}>
-          {/* Full Name */}
-          <Text style={styles.label}>Full Name</Text>
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.form}>
+            <Text style={styles.title}>Passenger Registration</Text>
+            <Text style={styles.subtitle}>Create your account</Text>
 
-          <TextInput
-            style={styles.input}
-            placeholder="Jose Delacruz"
-            placeholderTextColor="#ccc"
-            onChangeText={setName}
-            value={name}
-          />
-
-          {/* Email */}
-          <Text style={styles.label}>Email</Text>
-
-          <TextInput
-            style={styles.input}
-            placeholder="Email@example.com"
-            placeholderTextColor="#ccc"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            onChangeText={setEmail}
-            value={email}
-          />
-
-          {/* Password */}
-          <Text style={styles.label}>Password</Text>
-
-          <View style={styles.passwordContainer}>
+            <Text style={styles.label}>Full Name</Text>
             <TextInput
-              style={styles.passwordInput}
-              placeholder="Password"
-              placeholderTextColor="#ccc"
-              onChangeText={setPassword}
-              value={password}
-              secureTextEntry={!showPassword}
+              style={styles.input}
+              placeholder="Jose Delacruz"
+              placeholderTextColor="#cbd5e1"
+              autoCapitalize="words"
+              value={name}
+              onChangeText={setName}
             />
 
-            <Pressable
-              style={({ pressed }) => [
-                styles.eyeButton,
-                { opacity: pressed ? 0.5 : 1.0 },
-              ]}
-              onPress={() => setShowPassword(!showPassword)}
-              hitSlop={10}
-            >
-              {showPassword ? (
-                <Eye color="white" size={20} />
-              ) : (
-                <EyeOff color="white" size={20} />
-              )}
-            </Pressable>
-          </View>
-
-          {/* Confirm Password */}
-          <Text style={styles.label}>Confirm Password</Text>
-
-          <View style={styles.passwordContainer}>
+            <Text style={styles.label}>Email</Text>
             <TextInput
-              style={styles.passwordInput}
-              placeholder="Confirm Password"
-              placeholderTextColor="#ccc"
-              onChangeText={setConfirmPassword}
-              value={confirmpassword}
-              secureTextEntry={!showConfirmPassword}
+              style={styles.input}
+              placeholder="Email@example.com"
+              placeholderTextColor="#cbd5e1"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              value={email}
+              onChangeText={setEmail}
             />
 
-            <Pressable
-              style={({ pressed }) => [
-                styles.eyeButton,
-                { opacity: pressed ? 0.5 : 1.0 },
-              ]}
-              onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-              hitSlop={10}
-            >
-              {showConfirmPassword ? (
-                <Eye color="white" size={20} />
-              ) : (
-                <EyeOff color="white" size={20} />
-              )}
-            </Pressable>
+            <Text style={styles.label}>Password</Text>
+            <View style={styles.passwordContainer}>
+              <TextInput
+                style={styles.passwordInput}
+                placeholder="Password"
+                placeholderTextColor="#cbd5e1"
+                secureTextEntry={!showPassword}
+                autoCapitalize="none"
+                value={password}
+                onChangeText={setPassword}
+              />
+              <TouchableOpacity style={styles.eyeButton} onPress={() => setShowPassword((v) => !v)}>
+                <Text style={styles.eyeText}>{showPassword ? "Hide" : "Show"}</Text>
+              </TouchableOpacity>
+            </View>
+
+            <Text style={styles.label}>Confirm Password</Text>
+            <View style={styles.passwordContainer}>
+              <TextInput
+                style={styles.passwordInput}
+                placeholder="Confirm Password"
+                placeholderTextColor="#cbd5e1"
+                secureTextEntry={!showConfirmPassword}
+                autoCapitalize="none"
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+              />
+              <TouchableOpacity
+                style={styles.eyeButton}
+                onPress={() => setShowConfirmPassword((v) => !v)}
+              >
+                <Text style={styles.eyeText}>{showConfirmPassword ? "Hide" : "Show"}</Text>
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity style={styles.primaryButton} onPress={handleSubmit} activeOpacity={0.8}>
+              <Text style={styles.buttonText}>Register</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.linkButton} onPress={onNavigateToLogin}>
+              <Text style={styles.linkText}>Already have an account? Log In</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.linkButton} onPress={onNavigateToDriverRegister}>
+              <Text style={styles.linkText}>Register as Driver</Text>
+            </TouchableOpacity>
           </View>
-
-          {/* Submit Button */}
-          <Animated.View
-            style={{
-              transform: [{ scale }],
-            }}
-          >
-            <TouchableOpacity
-              style={styles.submitBtn}
-              onPress={handleSubmit}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.fontColor}>Submit</Text>
-            </TouchableOpacity>
-          </Animated.View>
-
-          {/* Switch to Login */}
-          {onNavigateToLogin && (
-            <TouchableOpacity
-              style={styles.switchBtn}
-              onPress={onNavigateToLogin}
-            >
-              <Text style={styles.switchText}>
-                Already have an account?{' '}
-                <Text style={styles.linkText}>Log In</Text>
-              </Text>
-            </TouchableOpacity>
-          )}
-
-          {/* Switch to Driver Registration */}
-          {onNavigateToDriverRegister && (
-            <TouchableOpacity
-              style={styles.switchBtn}
-              onPress={onNavigateToDriverRegister}
-            >
-              <Text style={styles.switchText}>
-                Want to earn with us?{' '}
-                <Text style={styles.linkText}>Register as Driver</Text>
-              </Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  image: {
-    flex: 1,
+  flex: { flex: 1 },
+  background: { flex: 1, width: "100%", height: "100%" },
+  scrollContent: {
+    flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
+    padding: 24,
   },
-
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
   form: {
-    backgroundColor: "rgba(128, 128, 128, 0.9)",
-    padding: 20,
-    borderRadius: 10,
-    gap: 10,
-    width: 300,
+    width: "100%",
+    maxWidth: 360,
+    padding: 22,
+    borderRadius: 16,
+    backgroundColor: "rgba(15, 23, 42, 0.94)",
   },
-
-  label: {
-    color: "white",
-    fontWeight: "bold",
-  },
-
+  title: { color: "#fff", fontSize: 23, fontWeight: "700", textAlign: "center" },
+  subtitle: { color: "#38bdf8", textAlign: "center", marginTop: 4, marginBottom: 14 },
+  label: { color: "#fff", fontWeight: "600", marginTop: 10, marginBottom: 6 },
   input: {
+    minHeight: 48,
     borderWidth: 1,
-    borderColor: "white",
-    padding: 10,
-    borderRadius: 5,
-    color: "white",
+    borderColor: "#94a3b8",
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    color: "#fff",
+    backgroundColor: "rgba(0,0,0,0.25)",
   },
-
-  // Password container
   passwordContainer: {
     flexDirection: "row",
     alignItems: "center",
+    minHeight: 48,
     borderWidth: 1,
-    borderColor: "white",
-    borderRadius: 5,
+    borderColor: "#94a3b8",
+    borderRadius: 8,
+    backgroundColor: "rgba(0,0,0,0.25)",
   },
-
-  // Password input
-  passwordInput: {
-    flex: 1,
-    padding: 10,
-    color: "white",
-  },
-
-  // Eye button
-  eyeButton: {
-    paddingHorizontal: 10,
+  passwordInput: { flex: 1, minHeight: 46, paddingHorizontal: 12, color: "#fff" },
+  eyeButton: { paddingHorizontal: 12, paddingVertical: 12 },
+  eyeText: { color: "#38bdf8", fontWeight: "700" },
+  primaryButton: {
+    marginTop: 20,
+    minHeight: 48,
+    borderRadius: 8,
+    backgroundColor: "#0284c7",
     justifyContent: "center",
     alignItems: "center",
   },
-
-  // Eye icon
-  eyeText: {
-    fontSize: 20,
-  },
-
-  // Submit text
-  fontColor: {
-    color: "white",
-    textAlign: "center",
-    fontWeight: "bold",
-  },
-
-  // Submit button
-  submitBtn: {
-    backgroundColor: "blue",
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 10,
-  },
-
-  switchBtn: {
-    marginTop: 10,
-    alignItems: "center",
-  },
-
-  switchText: {
-    color: "white",
-    fontSize: 13,
-    textAlign: "center",
-  },
-
-  linkText: {
-    color: "#38bdf8",
-    fontWeight: "bold",
-    textDecorationLine: "underline",
-  },
+  buttonText: { color: "#fff", fontWeight: "700", fontSize: 15 },
+  linkButton: { marginTop: 14, alignItems: "center" },
+  linkText: { color: "#38bdf8", textAlign: "center", textDecorationLine: "underline", fontSize: 13 },
 });
