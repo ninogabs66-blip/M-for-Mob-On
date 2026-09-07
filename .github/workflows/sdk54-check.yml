@@ -1,0 +1,32 @@
+name: SDK 54 compatibility check
+
+on:
+  push:
+    branches: [aj]
+  pull_request:
+    branches: [aj]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 20.19
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.19.x
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Expo doctor
+        run: npx expo-doctor
+
+      - name: TypeScript check
+        run: npx tsc --noEmit
+
+      - name: Export web bundle
+        run: npx expo export --platform web
