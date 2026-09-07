@@ -4,16 +4,10 @@ import LoginScreen from './screens/login';
 import RegisterScreen from './screens/register';
 import DriverLoginScreen from './screens/driverLogin';
 import DriverRegisterScreen from './screens/driverRegister';
-import EmailOtpScreen from './screens/emailOtp';
+import ForgotPasswordScreen from './screens/forgotPassword';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState('login');
-  const [otpEmail, setOtpEmail] = useState('');
-
-  const openOtp = (email) => {
-    setOtpEmail(email);
-    setCurrentScreen('email-otp');
-  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -24,16 +18,12 @@ export default function App() {
           onNavigateToRegister={() => setCurrentScreen('register')}
           onNavigateToDriverRegister={() => setCurrentScreen('driver-register')}
           onNavigateToDriverLogin={() => setCurrentScreen('driver-login')}
-          onNavigateToOtp={openOtp}
+          onNavigateToForgotPassword={() => setCurrentScreen('forgot-password')}
         />
       )}
 
-      {currentScreen === 'email-otp' && (
-        <EmailOtpScreen
-          email={otpEmail}
-          onBack={() => setCurrentScreen('login')}
-          onVerified={() => setCurrentScreen('login')}
-        />
+      {currentScreen === 'forgot-password' && (
+        <ForgotPasswordScreen onBack={() => setCurrentScreen('login')} />
       )}
 
       {currentScreen === 'register' && (
