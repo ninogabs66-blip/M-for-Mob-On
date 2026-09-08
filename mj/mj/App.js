@@ -2,6 +2,7 @@ import { useState } from "react";
 import { SafeAreaView, StatusBar, StyleSheet } from "react-native";
 import DriverLoginScreen from "./screens/driverLogin";
 import DriverRegisterScreen from "./screens/driverRegister";
+import ForgotPasswordScreen from "./screens/forgotPassword";
 import LoginScreen from "./screens/login";
 import RegisterScreen from "./screens/register";
 
@@ -17,6 +18,13 @@ export default function App() {
           onNavigateToRegister={() => setCurrentScreen("register")}
           onNavigateToDriverRegister={() => setCurrentScreen("driver-register")}
           onNavigateToDriverLogin={() => setCurrentScreen("driver-login")}
+          onNavigateToForgotPassword={() => setCurrentScreen("forgot-password")}
+        />
+      )}
+
+      {currentScreen === "forgot-password" && (
+        <ForgotPasswordScreen
+          onBack={() => setCurrentScreen("login")}
         />
       )}
 
